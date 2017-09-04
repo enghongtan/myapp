@@ -4,8 +4,9 @@ const app = express();
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-var User = require('./models/user');
+var userModel = require('./models/user');
 
 var mongodb = require("mongodb");
 var ObjectId = require('mongodb').ObjectId;
@@ -15,6 +16,11 @@ var db;
 
 var mongoose = require('mongoose');
 mongoose.connect(url);
+//db = mongoose.createConnection(url);
+
+//Bind connection to error event (to get notification of connection errors)
+//db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 var COLLECTION = 'users';
 
 
@@ -33,10 +39,45 @@ app.get('/', function (req, res) {
   res.status(200).send('Working!')
 })
 
+//-------------------------------------------------------------------------------
 //PLACEHOLDER FUNCTION TO FIND ALL USERS
-app.get('/api/users', function(req, res) {
- User.find({}, function(err, users) {
-    if (err) {
+// http://localhost:3000/api/v1/users?username=John&userid=0&page=0&limit=2
+//-------------------------------------------------------------------------------
+app.get('/api/v1/users', function(req, res) {
+
+ var usrName= req.query.username;
+ var userid= req.query.userid; 
+
+ var limitPerPage= req.query.limit > 0 ? req.query.limit : 0;
+ var limit= parseInt(limitPerPage,10);
+
+ var page = req.query.page > 0 ? req.query.page : 0;
+
+ console.log('Search page parameters');
+ console.log('username='+usrName);
+ console.log('userid='+userid);
+ console.log('page='+page);
+ console.log('limitPerPage='+limit);
+
+ var query;
+ if (usrName == 'all' && userid == '0') {
+  query = userModel.find({});
+ }
+ else if (usrName == 'all' && userid != '0'){
+  query = userModel.find({ 'userid' : userid });
+ }
+  else if (usrName != 'all' && userid == '0'){
+  query = userModel.find({ 'username' : usrName });
+ }
+
+ // limit our results to limitPerPage items
+ query.limit(limit);
+ // skip on to the next page records
+ query.skip(limitPerPage * page);
+
+ // execute the query
+ query.exec(function (err, users) {
+  if (err) {
      handleError(res, err.message, "Failed to get users.");
     }else{
      res.status(200).json(users);
@@ -44,29 +85,143 @@ app.get('/api/users', function(req, res) {
   });
 });
 
-//PLACEHOLDER FUNCTION TO FIND ALL USERS AND RETURN USERNAMES
-app.get('/api/user_ids', function(req, res) {
- User.find({}, 'username', function(err, users) {
-    if (err) {
+//-------------------------------------------------------------------------------
+//PLACEHOLDER FUNCTION TO FIND CURRENT USER
+// http://localhost:3000/api/v1/user?userid=11
+//-------------------------------------------------------------------------------
+app.get('/api/v1/user', function(req, res) {
+
+ var userid= req.query.userid;
+ var query;
+ query = userModel.find({ 'userid' : userid });
+
+ // execute the query
+ query.exec(function (err, user) {
+  if (err) {
      handleError(res, err.message, "Failed to get users.");
     }else{
-     res.status(200).json(users);
+     res.status(200).json(user);
     }
-  });
+  }); 
+});
+	
+
+//-------------------------------------------------------------------------------
+//PLACEHOLDER FUNCTION TO CREATE A NEW USER
+//-------------------------------------------------------------------------------
+app.post('/api/v1/createUser', function(req, res) {
+
+ var newUserid='15'; // todo: increment the count
+ var newUsername= req.body.username;
+ var newPassword= req.body.password;
+ var newAdmin= req.body.admin;
+ var newProfilePic= ''; // todo: convert pic to base64
+ var newDepartment= req.body.department;
+/*
+ var newUserid='15';
+ var newUsername= 'Mark';
+ var newPassword= 'password1';
+ var newAdmin= 'false';
+ var newProfilePic= ''; 
+ var newDepartment= 'Dept A';
+ */
+ console.log('Create page parameters');
+
+ console.log('username='+newUsername);
+ console.log('userid='+newUserid);
+ console.log('password='+newPassword);
+ console.log('admin='+newAdmin);
+ console.log('profilePic='+newProfilePic);
+ console.log('department='+newDepartment);
+
+ // Create an instance of model user
+ var newUsr = new userModel({ userid: newUserid, 
+	username: newUsername,
+	password: newPassword,
+	admin: newAdmin,
+	profilePic: newProfilePic,
+	department: newDepartment  });
+
+ // Save the new model instance, passing a callback
+ newUsr.save(function (err) {
+  if (err) {
+     handleError(res, err.message, "Failed to get users.");
+  }else{
+     res.status(200).json({'userid':newUserid});
+  }
+  // saved!
+});
 });
 
-//PLACEHOLDER FUNCTION TO FIND 1 USER BY USERNAME
-app.get('/api/users/:id', function(req, res) {
- User.find({ username: req.params.id }, function(err,users) {
-    if (err) {
-     handleError(res, err.message, "Failed to get user.");
-    }else{
-     //console.log(req.params.id);
-     res.status(200).json(users);
-    }
+//-------------------------------------------------------------------------------
+//PLACEHOLDER FUNCTION TO DELETE A USER
+// http://localhost:3000/api/v1/user/12
+//-------------------------------------------------------------------------------
+app.delete('/api/v1/user/:id', function(req, res) {
+
+ var delUserid= req.params.id;
+ console.log('Delete page parameters');
+ console.log('delete userid='+delUserid);
+
+/**
+ userModel.find({ userid: delUserid }, function(err, user) {
+  if (err) throw err;
+
+  // delete him
+  userModel.remove(function(err) {
+    if (err) throw err;
+
+    console.log('User successfully deleted!');
+  });
+});
+*/
+
+ userModel.findOneAndRemove({ userid: delUserid }, function(err) {
+  if (err)  {
+     handleError(res, err.message, "Failed to get users.");
+  }else{
+     res.status(200).json(req.params.id);
+  }
+
+  // we have deleted the user
+  console.log('User deleted!');
  });
+
 });
 
+//-------------------------------------------------------------------------------
+//PLACEHOLDER FUNCTION TO UPDATE A USER
+// http://localhost:3000/api/v1/user/11
+//-------------------------------------------------------------------------------
+app.put('/api/v1/user/:id', function(req, res) {
+
+ var updUserid= req.params.id;
+ var newUsername= req.body.username;
+ var newPassword= req.body.password;
+ //var newAdmin= req.body.admin;
+ var newProfilePic= ''; // todo: convert pic to base64
+ var newDepartment= req.body.department;
+
+ console.log('Update page parameters');
+ console.log('userid='+updUserid);
+ console.log('username='+newUsername);
+ console.log('password='+newPassword);
+ //console.log('admin='+newAdmin);
+ console.log('profilePic='+newProfilePic);
+ console.log('department='+newDepartment);
 
 
+ var query   = { userid: updUserid  }; 
+ var update  = { username: newUsername, password: newPassword, profilePic: newProfilePic, department: newDepartment}; 
+ var options = { new: true }; 
+ userModel.findOneAndUpdate(query, update, options, function(err, user){ 
+  if (err) {
+     console.log('Error update user');
+     handleError(res, err.message, "Failed to get users.");
+  }else{
+	
+     		res.status(200).json(user);
+  }
+ });
+}); 
 
