@@ -1,28 +1,21 @@
 
 const express = require('express');
 const app = express();
+const cookieParser = require('cookie-parser');
 
 var bodyParser = require('body-parser');
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var userModel = require('./models/user');
+var db = require('./db');
 
-var mongodb = require("mongodb");
-var ObjectId = require('mongodb').ObjectId;
+var AuthController = require('./auth/AuthController');
+app.use('/api/v1', AuthController);
 
-var url= 'mongodb://localhost/usrmgmtdb';
-var db;
-
-var mongoose = require('mongoose');
-mongoose.connect(url);
-//db = mongoose.createConnection(url);
-
-//Bind connection to error event (to get notification of connection errors)
-//db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-var COLLECTION = 'users';
-
+var UserController = require('./user/UserController');
+app.use('/api/v1/', UserController);
 
 function handleError(res, reason, message, code) {
 console.log("ERROR: " + reason);
@@ -43,7 +36,7 @@ app.get('/', function (req, res) {
 //PLACEHOLDER FUNCTION TO FIND ALL USERS
 // http://localhost:3000/api/v1/users?username=John&userid=0&page=0&limit=2
 //-------------------------------------------------------------------------------
-app.get('/api/v1/users', function(req, res) {
+app.get('/api/v1/kivusers', function(req, res) {
 
  var usrName= req.query.username;
  var userid= req.query.userid; 
@@ -109,9 +102,9 @@ app.get('/api/v1/user', function(req, res) {
 //-------------------------------------------------------------------------------
 //PLACEHOLDER FUNCTION TO CREATE A NEW USER
 //-------------------------------------------------------------------------------
-app.post('/api/v1/createUser', function(req, res) {
+app.post('/api/v1/kivuser', function(req, res) {
 
- var newUserid='15'; // todo: increment the count
+ var newUserid='3'; // todo: increment the count
  var newUsername= req.body.username;
  var newPassword= req.body.password;
  var newAdmin= req.body.admin;
@@ -157,7 +150,7 @@ app.post('/api/v1/createUser', function(req, res) {
 //PLACEHOLDER FUNCTION TO DELETE A USER
 // http://localhost:3000/api/v1/user/12
 //-------------------------------------------------------------------------------
-app.delete('/api/v1/user/:id', function(req, res) {
+app.delete('/api/v1/kivuser/:id', function(req, res) {
 
  var delUserid= req.params.id;
  console.log('Delete page parameters');
@@ -193,7 +186,7 @@ app.delete('/api/v1/user/:id', function(req, res) {
 //PLACEHOLDER FUNCTION TO UPDATE A USER
 // http://localhost:3000/api/v1/user/11
 //-------------------------------------------------------------------------------
-app.put('/api/v1/user/:id', function(req, res) {
+app.put('/api/v1/kivuser/:id', function(req, res) {
 
  var updUserid= req.params.id;
  var newUsername= req.body.username;
