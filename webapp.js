@@ -82,7 +82,7 @@ app.get('/api/v1/kivusers', function(req, res) {
 //PLACEHOLDER FUNCTION TO FIND CURRENT USER
 // http://localhost:3000/api/v1/user?userid=11
 //-------------------------------------------------------------------------------
-app.get('/api/v1/user', function(req, res) {
+app.get('/api/v1/kivuser', function(req, res) {
 
  var userid= req.query.userid;
  var query;
