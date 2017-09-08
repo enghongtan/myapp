@@ -9,15 +9,62 @@ var User = require('../models/user');
 
 //-------------------------------------------------------------------------------
 // RETURNS ALL THE USERS IN THE DATABASE
+// http://localhost:3000/api/v1/users?username=John&userid=0&page=0&limit=2
 //-------------------------------------------------------------------------------
 router.get('/users', VerifyToken, function (req, res) {
 
  if(!req.isAdmin) return res.status(401).send("Unauthorized");
 
-    User.find({}, function (err, users) {
-        if (err) return res.status(500).send("There was a problem finding the users.");
-        res.status(200).send(users);
-    });
+ var usrName= req.query.username;
+ var usrid= req.query.userid; 
+
+ var limitPerPage= req.query.limit > 0 ? req.query.limit : 0;
+ var limitNum= parseInt(limitPerPage,10);
+
+ var pageNum = req.query.page > 0 ? req.query.page : 1;
+
+ console.log('Search page parameters');
+ console.log('username= '+usrName);
+ console.log('userid= '+usrid);
+ console.log('page= '+pageNum);
+ console.log('limitPerPage= '+limitNum);
+
+ var query;
+ if (usrName == 'all' && usrid == '0') {
+ 	 console.log('Search using all');
+	 User.paginate({}, { page: pageNum, limit: limitNum},  function (err, users) {
+
+		if (err){
+			console.log(err);
+	 		return res.status(500).send("There was a problem deleting the user.");
+		}
+		res.status(200).send(users);
+	 });
+ }
+ else if (usrName == 'all' && usrid > 0){
+ 	 console.log('Search using userid');
+	 query= {userid: usrid };
+	 User.paginate(query, { page: pageNum, limit: limitNum},  function (err, users) {
+
+		if (err){
+			console.log(err);
+	 		return res.status(500).send("There was a problem deleting the user.");
+		}
+		res.status(200).send(users);
+	 });
+ }
+  else if (usrName != 'all' && usrid == '0'){
+	 console.log('Search using username');
+	 User.paginate({'username': usrName}, { page: pageNum, limit: limitNum},  function (err, users) {
+
+		if (err){
+			console.log(err);
+	 		return res.status(500).send("There was a problem deleting the user.");
+		}
+		res.status(200).send(users);
+	 });
+ }
+
 });
 
 //-------------------------------------------------------------------------------
