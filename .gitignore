@@ -1,0 +1,5 @@
+node_modules
+tmp/*
+.vs/*
+src/.vs*
+npm-debug*

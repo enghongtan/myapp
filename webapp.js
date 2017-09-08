@@ -1,10 +1,12 @@
 
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
 var bodyParser = require('body-parser');
 app.use(cookieParser());
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -31,9 +33,3 @@ app.listen(3000, function() {
 app.get('/', function (req, res) {
   res.status(200).send('Working!')
 })
-
-
-	
-
-
-

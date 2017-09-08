@@ -19,7 +19,6 @@ var config = require('../config'); // get config file
 //-------------------------------------------------------------------------------
 router.post('/login', function(req, res) {
 
-
   console.log('userid='+req.body.userid);
 
   User.findOne({ userid: req.body.userid }, function (err, user) {
@@ -80,13 +79,13 @@ router.post('/user', VerifyToken, function(req, res) {
  console.log('department='+newDepartment);
 
   User.create({
- 	userid: newUserid, 
+ 	userid: newUserid,
 	username: newUsername,
 	password: hashedPassword,
 	isAdmin: newAdmin,
 	profilePic: newProfilePic,
 	department: newDepartment
-  }, 
+  },
   function (err, user) {
     if (err) {
 	console.log("ERROR: " +err);
