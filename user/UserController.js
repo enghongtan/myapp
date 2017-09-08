@@ -13,7 +13,7 @@ var User = require('../models/user');
 //-------------------------------------------------------------------------------
 router.get('/users', VerifyToken, function (req, res) {
 
- if(!req.isAdmin) return res.status(401).send("Unauthorized");
+ if(!req.isAdmin) return res.status(401).send("Unauthorized. Not an Administrator");
 
  var usrName= req.query.username;
  var usrid= req.query.userid; 
@@ -32,39 +32,24 @@ router.get('/users', VerifyToken, function (req, res) {
  var query;
  if (usrName == 'all' && usrid == '0') {
  	 console.log('Search using all');
-	 User.paginate({}, { page: pageNum, limit: limitNum},  function (err, users) {
-
-		if (err){
-			console.log(err);
-	 		return res.status(500).send("There was a problem deleting the user.");
-		}
-		res.status(200).send(users);
-	 });
+	 query= {};
  }
  else if (usrName == 'all' && usrid > 0){
  	 console.log('Search using userid');
-	 query= {userid: usrid };
-	 User.paginate(query, { page: pageNum, limit: limitNum},  function (err, users) {
-
-		if (err){
-			console.log(err);
-	 		return res.status(500).send("There was a problem deleting the user.");
-		}
-		res.status(200).send(users);
-	 });
+	 query= {userid: usrid};
  }
   else if (usrName != 'all' && usrid == '0'){
 	 console.log('Search using username');
-	 User.paginate({'username': usrName}, { page: pageNum, limit: limitNum},  function (err, users) {
-
-		if (err){
-			console.log(err);
-	 		return res.status(500).send("There was a problem deleting the user.");
-		}
-		res.status(200).send(users);
-	 });
+	 query= {username: usrName};
  }
+ User.paginate(query, { select: 'userid username password isAdmin profilePic department', page: pageNum, limit: limitNum},  function (err, users) {
 
+ if (err){
+		console.log(err);
+	 	return res.status(500).send("There was a problem searching users.");
+	}
+	res.status(200).send(users);
+ });
 });
 
 //-------------------------------------------------------------------------------
@@ -84,10 +69,10 @@ router.get('/:id', function (req, res) {
 router.delete('/user/:id', VerifyToken, function (req, res) {
 
  console.log('Delete page parameters');
- if(!req.isAdmin) return res.status(401).send("Unauthorized");
+ if(!req.isAdmin) return res.status(401).send("Unauthorized. Not an Administrator");
 
  var delUserid= req.params.id;
- console.log('delete userid='+delUserid);
+ console.log('delete userid= '+delUserid);
 
  User.findOneAndRemove({ userid: delUserid }, function(err, user) {
 
@@ -125,7 +110,7 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
  
  if(!req.isAdmin && req.userid != updUserid ){
 	console.log("Not authorized as isAdmin="+isAdmin+" own userid="+ req.userid+ " updateUserid="+updUserid);
-	return res.status(401).send("Unauthorized")
+	return res.status(401).send("Unauthorized.  Not an Administrator or not your particulars")
  };
 
  if(req.isAdmin | req.userid == updUserid ) {
