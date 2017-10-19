@@ -106,7 +106,7 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
  var newProfilePic= req.body.profilePic;
  var newDepartment= req.body.department;
 
- var hashedPassword = bcrypt.hashSync(req.body.password, 8);
+ var hashedPassword = newPassword ? bcrypt.hashSync(req.body.password, 8) : undefined;
 
  console.log('Update page parameters');
  console.log('userid='+updUserid);
