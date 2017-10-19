@@ -69,10 +69,18 @@ router.get('/:id', function (req, res) {
 router.delete('/user/:id', VerifyToken, function (req, res) {
 
  console.log('Delete page parameters');
- if(!req.isAdmin) return res.status(401).send("Unauthorized. Not an Administrator");
 
  var delUserid= req.params.id;
  console.log('delete userid= '+delUserid);
+ console.log('own userid= '+req.userid);
+
+ if(!req.isAdmin) return res.status(401).send("Unauthorized. Not an Administrator");
+
+ //check to prevent self delete
+ if(req.isAdmin | req.userid == delUserid ) {
+	console.log('Unauthorized as cannot delete self');
+	return res.status(401).send("Unauthorized. Cannot delete self");
+ }
 
  User.findOneAndRemove({ userid: delUserid }, function(err, user) {
 
@@ -83,6 +91,7 @@ router.delete('/user/:id', VerifyToken, function (req, res) {
         res.status(200).send("User: "+ user.username +" was deleted.");
     });
 });
+
 
 //-------------------------------------------------------------------------------
 // UPDATES A SINGLE USER IN THE DATABASE
