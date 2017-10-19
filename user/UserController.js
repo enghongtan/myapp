@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
-
+var bcrypt = require('bcryptjs');
 var VerifyToken = require('../auth/VerifyToken');
 
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -145,4 +145,12 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
 });
 
 
+//-------------------------------------------------------------------------------
+// UPDATES USER SEARCH PREFERENCE IN THE DATABASE
+// Added VerifyToken middleware to make sure only an authenticated user can put to this route
+//-------------------------------------------------------------------------------
+router.put('/userpref/:id',  VerifyToken, function (req, res) {
+
+
+});
 module.exports = router;
