@@ -94,7 +94,6 @@ router.delete('/user/:id', VerifyToken, function (req, res) {
     });
 });
 
-
 //-------------------------------------------------------------------------------
 // UPDATES A SINGLE USER IN THE DATABASE
 // Added VerifyToken middleware to make sure only an authenticated user can put to this route
