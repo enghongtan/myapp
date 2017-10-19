@@ -72,12 +72,14 @@ router.delete('/user/:id', VerifyToken, function (req, res) {
 
  var delUserid= req.params.id;
  console.log('delete userid= '+delUserid);
- console.log('own userid= '+req.userid);
+ console.log('own userid= '+req.userId);
 
  if(!req.isAdmin) return res.status(401).send("Unauthorized. Not an Administrator");
 
  //check to prevent self delete
- if(req.isAdmin | req.userid == delUserid ) {
+  console.log(typeof req.userId);
+  console.log(typeof delUserid);
+ if( req.userId == delUserid ) {
 	console.log('Unauthorized as cannot delete self');
 	return res.status(401).send("Unauthorized. Cannot delete self");
  }
@@ -117,12 +119,12 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
  console.log('profilePic='+newProfilePic);
  console.log('department='+newDepartment);
 
- if(!req.isAdmin && req.userid != updUserid ){
-	console.log("Not authorized as isAdmin="+isAdmin+" own userid="+ req.userid+ " updateUserid="+updUserid);
+ if(!req.isAdmin && req.userId != updUserid ){
+	console.log("Not authorized as isAdmin="+isAdmin+" own userid="+ req.userId+ " updateUserid="+updUserid);
 	return res.status(401).send("Unauthorized.  Not an Administrator or not your particulars")
  };
 
- if(req.isAdmin | req.userid == updUserid ) {
+ if(req.isAdmin || req.userId == updUserid ) {
 
  	var query   = { userid: updUserid  };
  	var update  = {};
@@ -151,6 +153,26 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
 //-------------------------------------------------------------------------------
 router.put('/userpref/:id',  VerifyToken, function (req, res) {
 
+ var updUserid= req.params.id;
+ var updSearchPref= req.body.searchPref;
+
+ if(req.userId == updUserid ) {
+
+ 	var query   = { userid: updUserid  };
+ 	var update  = {};
+
+  if(!!updSearchPref) update = Object.assign({}, update, {searchPref: updSearchPref});
+
+ 	var options = { new: true };
+ 	User.findOneAndUpdate(query, update, options, function(err, user){
+        	if (err){
+		 console.log(err);
+		 return res.status(500).send("There was a problem updating the user.");
+		}
+        	res.status(200).send(user);
+    });
+
+ }
 
 });
 module.exports = router;
