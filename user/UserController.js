@@ -16,7 +16,7 @@ router.get('/users', VerifyToken, function (req, res) {
  if(!req.isAdmin) return res.status(401).send("Unauthorized. Not an Administrator");
 
  var usrName= req.query.username;
- var usrid= req.query.userid; 
+ var usrid= req.query.userid;
 
  var limitPerPage= req.query.limit > 0 ? req.query.limit : 0;
  var limitNum= parseInt(limitPerPage,10);
@@ -107,7 +107,7 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
  //console.log('admin='+newAdmin);
  console.log('profilePic='+newProfilePic);
  console.log('department='+newDepartment);
- 
+
  if(!req.isAdmin && req.userid != updUserid ){
 	console.log("Not authorized as isAdmin="+isAdmin+" own userid="+ req.userid+ " updateUserid="+updUserid);
 	return res.status(401).send("Unauthorized.  Not an Administrator or not your particulars")
@@ -115,10 +115,15 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
 
  if(req.isAdmin | req.userid == updUserid ) {
 
- 	var query   = { userid: updUserid  }; 
- 	var update  = { username: newUsername, password: hashedPassword, profilePic: newProfilePic, department: newDepartment}; 
- 	var options = { new: true }; 
- 	User.findOneAndUpdate(query, update, options, function(err, user){ 
+ 	var query   = { userid: updUserid  };
+ 	var update  = {};
+  if(!!newUsername) update = Object.assign({}, update, {username: newUsername});
+  if(!!newProfilePic) update = Object.assign({}, update, {profilePic: newProfilePic});
+  if(!!hashedPassword) update = Object.assign({}, update, {password: hashedPassword});
+  if(!!newDepartment) update = Object.assign({}, update, {department: newDepartment});
+
+ 	var options = { new: true };
+ 	User.findOneAndUpdate(query, update, options, function(err, user){
         	if (err){
 		 console.log(err);
 		 return res.status(500).send("There was a problem updating the user.");
