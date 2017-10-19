@@ -55,12 +55,16 @@ router.get('/users', VerifyToken, function (req, res) {
 //-------------------------------------------------------------------------------
 // GETS A SINGLE USER FROM THE DATABASE
 //-------------------------------------------------------------------------------
-router.get('/:id', function (req, res) {
+router.get('/version', function (req, res) {
+
+	res.status(200).send("The backend server v1.0 is reached.");
+/**	
     User.findById(req.params.id, function (err, user) {
         if (err) return res.status(200).send("There was a problem finding the user.");
         if (!user) return res.status(404).send("No user found.");
         res.status(200).send(user);
     });
+	*/
 });
 
 //-------------------------------------------------------------------------------
