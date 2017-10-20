@@ -4,9 +4,11 @@ const app = express();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
-var whitelist = ['http://localhost:8080', 'http://35.197.155.91:8080'];
+var whitelist = ['http://localhost:8080', 'http://107.178.254.205',
+'http://35.197.155.91:8080', 'http://35.198.222.39:3000', undefined];
 var corsOptions = {
   origin: function (origin, callback) {
+    console.log('Origin : ' + origin);
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
