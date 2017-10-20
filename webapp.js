@@ -4,14 +4,17 @@ const app = express();
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
-var whitelist = ['http://localhost:8080', 'http://35.197.155.91:8080'];
+var whitelist = ['http://localhost:8080','http://localhost:3000', 'http://35.197.155.91:8080','undefined'];
 var corsOptions = {
   origin: function (origin, callback) {
+    console.log(origin);
+    callback(null, true);
+    /** 
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
-    }
+    }*/
   }, credentials: true
 }
 
@@ -29,6 +32,9 @@ app.use('/api/v1', AuthController);
 
 var UserController = require('./user/UserController');
 app.use('/api/v1/', UserController);
+
+var PrefController = require('./user/SearchPrefController');
+app.use('/api/v1/', PrefController);
 
 function handleError(res, reason, message, code) {
 console.log("ERROR: " + reason);

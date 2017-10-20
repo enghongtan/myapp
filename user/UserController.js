@@ -151,34 +151,4 @@ router.put('/user/:id',  VerifyToken, function (req, res) {
 });
 
 
-//-------------------------------------------------------------------------------
-// UPDATES USER SEARCH PREFERENCE IN THE DATABASE
-// Added VerifyToken middleware to make sure only an authenticated user can put to this route
-//-------------------------------------------------------------------------------
-router.put('/userpref/:id',  VerifyToken, function (req, res) {
-
- var updUserid= req.params.id;
- var updSearchPref= req.body.searchPref;
-
- console.log("searchPreference: "+updSearchPref);
-
- if(req.userId == updUserid ) {
-
- 	var query   = { userid: updUserid  };
- 	var update  = {};
-
-  if(!!updSearchPref) update = Object.assign({}, update, {searchPref: updSearchPref});
-
- 	var options = { new: true };
- 	User.findOneAndUpdate(query, update, options, function(err, user){
-        	if (err){
-		 console.log(err);
-		 return res.status(500).send("There was a problem updating the user.");
-		}
-        	res.status(200).send(user);
-    });
-
- }
-
-});
 module.exports = router;
