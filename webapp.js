@@ -8,7 +8,13 @@ var whitelist = ['http://localhost:8080', 'http://107.178.254.205',
 'http://35.197.155.91:8080', 'http://35.198.222.39:3000', undefined];
 var corsOptions = {
   origin: function (origin, callback) {
+<<<<<<< HEAD
     console.log('Origin : ' + origin);
+=======
+    console.log(origin);
+    //callback(null, true)
+    
+>>>>>>> a0092f35789a6dd291e631cfa05a18233e8e9f7e
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
@@ -31,6 +37,9 @@ app.use('/api/v1', AuthController);
 
 var UserController = require('./user/UserController');
 app.use('/api/v1/', UserController);
+
+var PrefController = require('./user/SearchPrefController');
+app.use('/api/v1/', PrefController);
 
 function handleError(res, reason, message, code) {
 console.log("ERROR: " + reason);
